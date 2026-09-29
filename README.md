@@ -1,1 +1,515 @@
-# fases-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almacén Pro — Estable v4</title>
+<style>
+  :root{
+    --bg:#f4f6fb;
+    --panel:#ffffff;
+    --panel-2:#f8fafc;
+    --text:#18212f;
+    --muted:#687386;
+    --line:#e4e9f0;
+    --primary:#5b5cf0;
+    --primary-2:#7778ff;
+    --success:#18a874;
+    --warning:#e6a700;
+    --danger:#e05252;
+    --shadow:0 12px 30px rgba(20,30,60,.08);
+    --radius:18px;
+  }
+  body.dark{
+    --bg:#0f1420;
+    --panel:#171d2a;
+    --panel-2:#111722;
+    --text:#edf2ff;
+    --muted:#9aa7bc;
+    --line:#283142;
+    --shadow:0 15px 35px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .app{min-height:100vh;display:flex}
+  .sidebar{
+    width:250px;background:var(--panel);border-right:1px solid var(--line);padding:18px;position:sticky;top:0;height:100vh;z-index:20
+  }
+  .brand{display:flex;align-items:center;gap:12px;padding:8px 6px 20px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .brand-icon{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--primary),var(--primary-2));display:grid;place-items:center;color:white;font-size:21px;box-shadow:0 9px 22px rgba(91,92,240,.25)}
+  .brand h1{font-size:17px;margin:0}.brand p{font-size:11px;margin:3px 0 0;color:var(--muted)}
+  .nav{display:grid;gap:7px}
+  .nav-btn{border:0;background:transparent;color:var(--muted);padding:12px 13px;border-radius:12px;text-align:left;font-weight:700;display:flex;align-items:center;gap:10px}
+  .nav-btn:hover{background:var(--panel-2);color:var(--text)}
+  .nav-btn.active{background:rgba(91,92,240,.11);color:var(--primary)}
+  .side-bottom{position:absolute;left:18px;right:18px;bottom:18px;display:grid;gap:8px}
+  .main{flex:1;min-width:0}
+  .topbar{position:sticky;top:0;z-index:15;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(15px);border-bottom:1px solid var(--line);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+  .topbar-left{display:flex;align-items:center;gap:12px}.menu-btn{display:none}
+  .page-title{margin:0;font-size:24px}.page-sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .top-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 13px;border-radius:11px;font-weight:700;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.success{background:var(--success);border-color:var(--success);color:#fff}.btn.danger{background:transparent;color:var(--danger);border-color:rgba(224,82,82,.35)}
+  .content{padding:24px;max-width:1450px;margin:auto}
+  .view{display:none}.view.active{display:block}
+  .stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-bottom:20px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:var(--shadow)}
+  .stat .label{color:var(--muted);font-size:12px;font-weight:700}.stat .value{font-size:25px;font-weight:900;margin-top:5px}.stat .small{font-size:11px;color:var(--muted);margin-top:2px}
+  .grid{display:grid;gap:18px}.two{grid-template-columns:1.5fr 1fr}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .card-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}.card-head h2,.card-head h3{margin:0;font-size:17px}.card-body{padding:20px}
+  .project-hero{padding:24px;background:linear-gradient(135deg,rgba(91,92,240,.14),rgba(119,120,255,.05));border:1px solid rgba(91,92,240,.15);border-radius:var(--radius);margin-bottom:18px}
+  .hero-row{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.hero-title{font-size:28px;font-weight:900;margin:0 0 5px}.hero-desc{margin:0;color:var(--muted);max-width:800px}
+  .progress{height:9px;background:var(--panel-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}.progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-2));border-radius:inherit}
+  .phase-list{display:grid;gap:16px}
+  .phase{border:1px solid var(--line);border-radius:17px;overflow:hidden;background:var(--panel)}
+  .phase-head{padding:16px 18px;background:var(--panel-2);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .phase-main{display:flex;align-items:center;gap:12px;min-width:0}.phase-num{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--primary);color:white;font-weight:900;flex:none}.phase-name{font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.phase-meta{font-size:11px;color:var(--muted);margin-top:2px}
+  .phase-actions,.area-actions,.item-actions{display:flex;gap:6px;flex-wrap:wrap}.icon-btn{width:34px;height:34px;border:1px solid var(--line);background:var(--panel);border-radius:9px;display:grid;place-items:center;color:var(--muted)}.icon-btn:hover{color:var(--text);border-color:var(--primary)}
+  .phase-progress{min-width:170px;display:flex;align-items:center;gap:8px}.pct{font-weight:900;font-size:12px;min-width:40px;text-align:right}
+  .areas{padding:16px;display:grid;gap:14px}
+  .area{border:1px solid var(--line);border-radius:14px;overflow:hidden}.area-head{padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel)}.area-title{font-weight:850}.area-count{font-size:11px;color:var(--muted);margin-left:8px}.area-body{padding:12px;display:grid;gap:9px;background:var(--panel-2)}
+  .item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px}.item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item-name{font-weight:800}.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:10px;border-radius:999px;padding:4px 8px;border:1px solid var(--line);color:var(--muted);background:var(--panel-2)}.tag.high{color:#b03b3b;border-color:#efb2b2}.tag.medium{color:#a37400;border-color:#efd27e}.tag.low{color:#22745c;border-color:#a3ddc8}.tag.done{color:#137654;border-color:#9fdbc8}.tag.pending{color:#b67500;border-color:#e8ce87}
+  .qty-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.qty-number{font-size:13px;font-weight:900}.qty-controls{display:flex;align-items:center;gap:6px}.qty-controls button{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-weight:900}.qty-input{width:64px;text-align:center;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:7px}
+  .item-info{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;font-size:11px;color:var(--muted)}.info-box{padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2)}.info-box b{display:block;color:var(--text);font-size:11px;margin-top:2px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.input,.select,.textarea{width:100%;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:10px 11px;outline:none}.input:focus,.select:focus,.textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(91,92,240,.1)}
+  .toolbar .search{flex:1;min-width:240px}.toolbar .select{width:auto;min-width:160px}
+  .empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:13px}
+  .dashboard-list{display:grid;gap:10px}.dashboard-row{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel-2)}.dashboard-row-top{display:flex;justify-content:space-between;gap:10px}.dashboard-row small{color:var(--muted)}
+  .alert{border:1px solid #efb6b6;background:rgba(224,82,82,.07);padding:11px;border-radius:10px;color:var(--text);font-size:12px}
+  .notice{padding:11px;border-radius:10px;background:rgba(24,168,116,.08);border:1px solid rgba(24,168,116,.25);font-size:12px}
+  .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:grid;gap:6px}.field label{font-size:11px;font-weight:800;color:var(--muted)}.field.full{grid-column:1/-1}
+  .modal-bg{position:fixed;inset:0;background:rgba(8,12,20,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}.modal-bg.open{display:flex}.modal{width:min(680px,100%);max-height:90vh;overflow:auto;background:var(--panel);border-radius:20px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.28)}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.modal-head h3{margin:0}.modal-body{padding:20px}.modal-foot{padding:15px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+  .toast{position:fixed;right:18px;bottom:18px;z-index:120;display:grid;gap:8px}.toast-item{background:var(--text);color:var(--bg);padding:11px 14px;border-radius:10px;box-shadow:var(--shadow);font-size:12px;font-weight:700}
+  .mini-table{width:100%;border-collapse:collapse}.mini-table th,.mini-table td{padding:9px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}.mini-table th{color:var(--muted);font-size:11px}
+  .footer-note{margin-top:18px;color:var(--muted);font-size:11px;text-align:center}
+  @media(max-width:1150px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.two{grid-template-columns:1fr}}
+  @media(max-width:850px){.sidebar{position:fixed;left:-280px;transition:.2s}.sidebar.open{left:0}.menu-btn{display:inline-grid}.content{padding:16px}.topbar{padding:13px 16px}.item-info{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.top-actions .hide-mobile{display:none}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero-row{flex-direction:column}.phase-progress{min-width:100%}.toolbar .select{width:100%}}
+
+  /* Diseño mejorado v3 */
+  .sidebar{box-shadow:8px 0 30px rgba(20,30,60,.035)}
+  .brand-icon{box-shadow:0 10px 24px rgba(91,92,240,.28)}
+  .nav-btn{position:relative;overflow:hidden}
+  .nav-btn::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:8px;background:var(--primary);transform:scaleY(0);transition:.18s}
+  .nav-btn.active::before{transform:scaleY(1)}
+  .stat{position:relative;overflow:hidden}
+  .stat::after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;right:-45px;top:-45px;background:rgba(91,92,240,.07)}
+  .card,.phase,.area,.item{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+  .phase:hover{transform:translateY(-1px);box-shadow:0 16px 32px rgba(20,30,60,.08)}
+  .area:hover{border-color:rgba(91,92,240,.28)}
+  .item:hover{border-color:rgba(91,92,240,.25);box-shadow:0 7px 18px rgba(20,30,60,.05)}
+  .phase-head{position:relative}
+  .phase-head::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:5px;background:linear-gradient(var(--primary),var(--primary-2))}
+  .area-head{position:relative}
+  .area-head::before{content:"";position:absolute;left:0;top:50%;width:3px;height:25px;border-radius:4px;background:var(--primary-2);transform:translateY(-50%)}
+  .toolbar{position:sticky;top:72px;z-index:8;padding:10px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(10px);border-radius:13px}
+  .modal{animation:modalIn .16s ease-out}
+  @keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  @media(max-width:850px){.toolbar{top:65px}}
+
+
+  .phase-actions .btn,.area-actions .btn{padding:8px 10px;font-size:11px}
+  .phase-actions,.area-actions{align-items:center}
+  .phase-actions .btn.primary{box-shadow:0 5px 14px rgba(91,92,240,.16)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">📦</div>
+      <div><h1>fases leo</h1><p>Control simple y funcional</p></div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" data-view="dashboard">📊 info general</button>
+      <button class="nav-btn" data-view="project">🗂️ Proyecto</button>
+      <button class="nav-btn" data-view="inventory">📦 Inventario</button>
+      <button class="nav-btn" data-view="reports">📈 Reportes</button>
+      <button class="nav-btn" data-view="settings">⚙️ Configuración</button>
+    </div>
+    <div class="side-bottom">
+      <button class="btn" id="themeBtn">🌙 Cambiar tema</button>
+      <button class="btn danger" id="resetBtn">🗑️ Nuevo proyecto</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn menu-btn" id="menuBtn">☰</button>
+        <div><h2 class="page-title" id="pageTitle">Dashboard</h2><p class="page-sub" id="pageSub">Vista general del proyecto</p></div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="saveBtn">💾 Guardar</button><span id="saveStatus" style="font-size:11px;color:var(--muted);align-self:center">Guardado</span>
+        <button class="btn" id="exportBtn">⬇️ Exportar</button>
+        <button class="btn" id="importBtn">⬆️ Importar</button>
+        <input type="file" id="fileInput" accept="application/json" hidden>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="view active" id="dashboardView">
+        <div class="project-hero">
+          <div class="hero-row">
+            <div><h1 class="hero-title" id="dashProjectName">Control del almacén</h1><p class="hero-desc" id="dashProjectDesc">Organiza tus fases, áreas, materiales y tareas.</p></div>
+            <button class="btn primary" id="goProjectBtn">🗂️ Ver proyecto</button>
+          </div>
+          <div style="margin-top:18px;display:flex;justify-content:space-between;font-size:12px;font-weight:800"><span>Progreso general</span><span id="dashPercent">0%</span></div>
+          <div class="progress" style="margin-top:7px"><span id="dashFill" style="width:0%"></span></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="label">Fases</div><div class="value" id="sPhases">0</div></div>
+          <div class="stat"><div class="label">Áreas</div><div class="value" id="sAreas">0</div></div>
+          <div class="stat"><div class="label">Elementos</div><div class="value" id="sItems">0</div></div>
+          <div class="stat"><div class="label">Requerido</div><div class="value" id="sRequired">0</div><div class="small">unidades totales</div></div>
+          <div class="stat"><div class="label">Faltante</div><div class="value" id="sMissing">0</div><div class="small">por completar</div></div>
+          <div class="stat"><div class="label">Costo</div><div class="value" id="sCost">$0</div></div>
+        </div>
+        <div class="grid two">
+          <div class="card"><div class="card-head"><h2>Resumen por fase</h2><span class="tag">Gestiona las fases desde Proyecto</span></div><div class="card-body"><div class="dashboard-list" id="phaseSummary"></div></div></div>
+          <div class="card"><div class="card-head"><h2>Alertas</h2></div><div class="card-body"><div id="alerts"></div></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="projectView">
+        <div class="card" style="margin-bottom:18px"><div class="card-body">
+          <div class="hero-row"><div><h1 style="margin:0 0 5px;font-size:26px" id="projectNameBig">Control del almacén</h1><p style="margin:0;color:var(--muted)" id="projectDescBig"></p></div><div class="top-actions"><button class="btn primary" id="newPhaseBtn">＋ Nueva fase</button><button class="btn" id="editProjectBtn">✏️ Editar proyecto</button></div></div>
+        </div></div>
+        <div class="toolbar">
+          <input class="input search" id="searchInput" placeholder="🔎 Buscar fase, área o elemento...">
+          <select class="select" id="statusFilter"><option value="all">Todos los estados</option><option value="pending">Pendiente</option><option value="progress">En progreso</option><option value="complete">Completado</option></select>
+          <select class="select" id="priorityFilter"><option value="all">Todas las prioridades</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Baja</option></select>
+          <button class="btn" id="clearFiltersBtn">Limpiar filtros</button>
+        </div>
+        <div class="phase-list" id="phaseList"></div>
+        <div class="footer-note">Los cambios se guardan automáticamente en este navegador.</div>
+      </section>
+
+      <section class="view" id="inventoryView">
+        <div class="card"><div class="card-head"><h2>Inventario</h2><span class="tag">Vista de todos los elementos</span></div><div class="card-body">
+          <div class="toolbar"><input class="input search" id="invSearch" placeholder="🔎 Buscar elemento, proveedor, ubicación o SKU..."><select class="select" id="invFilter"><option value="all">Todo</option><option value="missing">Con faltante</option><option value="complete">Completado</option><option value="lowstock">Stock bajo</option></select></div>
+          <div style="overflow:auto"><table class="mini-table"><thead><tr><th>Elemento</th><th>Fase / Área</th><th>Avance</th><th>Faltante</th><th>Stock mín.</th><th>Ubicación</th><th></th></tr></thead><tbody id="inventoryTable"></tbody></table></div>
+        </div></div>
+      </section>
+
+      <section class="view" id="reportsView">
+        <div class="stats"><div class="stat"><div class="label">Pendientes</div><div class="value" id="rPending">0</div></div><div class="stat"><div class="label">En progreso</div><div class="value" id="rProgress">0</div></div><div class="stat"><div class="label">Completados</div><div class="value" id="rComplete">0</div></div><div class="stat"><div class="label">Faltante</div><div class="value" id="rMissing">0</div></div><div class="stat"><div class="label">Alta prioridad</div><div class="value" id="rHigh">0</div></div><div class="stat"><div class="label">Costo total</div><div class="value" id="rCost">$0</div></div></div>
+        <div class="grid two"><div class="card"><div class="card-head"><h2>Fases</h2><button class="btn" id="printBtn">🖨️ Imprimir</button></div><div class="card-body"><div class="dashboard-list" id="reportPhases"></div></div></div><div class="card"><div class="card-head"><h2>Elementos con faltante</h2></div><div class="card-body"><div class="dashboard-list" id="reportMissing"></div></div></div></div>
+      </section>
+
+      <section class="view" id="settingsView">
+        <div class="card"><div class="card-head"><h2>Configuración del proyecto</h2></div><div class="card-body"><div class="form-grid">
+          <div class="field"><label>Nombre del proyecto</label><input class="input" id="setName"></div>
+          <div class="field"><label>Descripción</label><input class="input" id="setDesc"></div>
+          <div class="field full"><div class="notice">💾 El sistema usa almacenamiento local del navegador. Exporta tu proyecto para tener una copia de seguridad.</div></div>
+          <div class="field"><button class="btn primary" id="saveSettingsBtn">Guardar configuración</button></div>
+        </div></div></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">Formulario</h3><button type="button" class="icon-btn" id="modalClose">✕</button></div>
+    <form id="modalForm">
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot"><button type="button" class="btn" id="modalCancel">Cancelar</button><button type="submit" class="btn primary" id="modalSave">Guardar</button></div>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const KEY = 'almacen_pro_data';
+  const LEGACY_KEYS = ['almacen_pro_estable_v5','almacen_pro_estable_v4','almacen_pro_estable_v3','almacen_pro_estable_v2','almacen_pro_estable_v1','almacen_pro_v8','almacen_pro_v7','almacen_pro_mejorado'];
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    body: document.body, sidebar:$('sidebar'), menuBtn:$('menuBtn'), themeBtn:$('themeBtn'), resetBtn:$('resetBtn'), saveBtn:$('saveBtn'), saveStatus:$('saveStatus'), exportBtn:$('exportBtn'), importBtn:$('importBtn'), fileInput:$('fileInput'),
+    pageTitle:$('pageTitle'), pageSub:$('pageSub'), dashboardView:$('dashboardView'), projectView:$('projectView'), inventoryView:$('inventoryView'), reportsView:$('reportsView'), settingsView:$('settingsView'),
+    dashProjectName:$('dashProjectName'), dashProjectDesc:$('dashProjectDesc'), dashPercent:$('dashPercent'), dashFill:$('dashFill'), goProjectBtn:$('goProjectBtn'),
+    sPhases:$('sPhases'),sAreas:$('sAreas'),sItems:$('sItems'),sRequired:$('sRequired'),sMissing:$('sMissing'),sCost:$('sCost'),phaseSummary:$('phaseSummary'),alerts:$('alerts'),
+    projectNameBig:$('projectNameBig'),projectDescBig:$('projectDescBig'),newPhaseBtn:$('newPhaseBtn'),editProjectBtn:$('editProjectBtn'),searchInput:$('searchInput'),statusFilter:$('statusFilter'),priorityFilter:$('priorityFilter'),clearFiltersBtn:$('clearFiltersBtn'),phaseList:$('phaseList'),
+    invSearch:$('invSearch'),invFilter:$('invFilter'),inventoryTable:$('inventoryTable'),
+    rPending:$('rPending'),rProgress:$('rProgress'),rComplete:$('rComplete'),rMissing:$('rMissing'),rHigh:$('rHigh'),rCost:$('rCost'),reportPhases:$('reportPhases'),reportMissing:$('reportMissing'),printBtn:$('printBtn'),
+    setName:$('setName'),setDesc:$('setDesc'),saveSettingsBtn:$('saveSettingsBtn'),
+    modalBg:$('modalBg'),modalForm:$('modalForm'),modalTitle:$('modalTitle'),modalBody:$('modalBody'),modalClose:$('modalClose'),modalCancel:$('modalCancel'),toast:$('toast')
+  };
+
+  const clone = (x) => JSON.parse(JSON.stringify(x));
+  const uid = () => 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  const esc = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const money = (n) => new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:2}).format(Number(n)||0);
+  const num = (n) => new Intl.NumberFormat('es-MX').format(Number(n)||0);
+
+  const DEFAULT = {
+    project:{name:'Control del almacén',description:'Organiza fases, áreas, materiales, herramientas y tareas.'},
+    phases:[{
+      id:uid(),number:1,name:'Limpieza del almacén',description:'Primera fase del proyecto.',areas:[
+        {id:uid(),name:'Herramientas',description:'',items:[
+          makeItem('Escobas de cerdas duras',5,'piezas'),makeItem('Recogedores',3,'piezas'),makeItem('Palas',2,'piezas'),makeItem('Rastrillos',2,'piezas')
+        ]},
+        {id:uid(),name:'Materiales de limpieza',description:'',items:[
+          makeItem('Detergente',4,'litros'),makeItem('Desinfectante',4,'litros'),makeItem('Bolsas industriales',30,'piezas')
+        ]},
+        {id:uid(),name:'Seguridad',description:'',items:[
+          makeItem('Guantes',20,'pares'),makeItem('Lentes de seguridad',10,'piezas'),makeItem('Cubrebocas',30,'piezas')
+        ]}
+      ]
+    }]
+  };
+
+  function makeItem(name='',quantity=1,unit='piezas'){
+    return {id:uid(),name,quantity:Math.max(1,Number(quantity)||1),completed:0,unit,price:0,priority:'medium',dueDate:'',responsible:'',supplier:'',location:'',sku:'',minStock:0,note:''};
+  }
+
+  // Almacenamiento robusto: debe existir antes de cargar el estado.
+  const memoryStore = Object.create(null);
+  const storage = {
+    get(key){
+      try { return window.localStorage.getItem(key); }
+      catch(e){ return Object.prototype.hasOwnProperty.call(memoryStore,key) ? memoryStore[key] : null; }
+    },
+    set(key,value){
+      try { window.localStorage.setItem(key,value); return true; }
+      catch(e){ memoryStore[key]=String(value); return false; }
+    },
+    remove(key){
+      try { window.localStorage.removeItem(key); }
+      catch(e){ delete memoryStore[key]; }
+    }
+  };
+
+  let state = loadState();
+  let currentView = 'dashboard';
+  let modalAction = null;
+
+  function normalize(s){
+    if(!s || typeof s!=='object') return clone(DEFAULT);
+    const out = {project:{...DEFAULT.project,...(s.project||{})},phases:Array.isArray(s.phases)?s.phases:[]};
+    out.phases.forEach((p,i)=>{
+      p.id=p.id||uid(); p.number=Math.max(1,Number(p.number)||i+1); p.name=String(p.name||'Nueva fase'); p.description=String(p.description||''); p.areas=Array.isArray(p.areas)?p.areas:[];
+      p.areas.forEach(a=>{a.id=a.id||uid();a.name=String(a.name||'Nueva área');a.description=String(a.description||'');a.items=Array.isArray(a.items)?a.items:[];a.items.forEach(it=>{const d=makeItem();Object.keys(d).forEach(k=>{if(it[k]===undefined||it[k]===null)it[k]=d[k]});it.quantity=Math.max(1,Number(it.quantity)||1);it.completed=Math.max(0,Math.min(it.quantity,Number(it.completed)||0));it.price=Math.max(0,Number(it.price)||0);it.minStock=Math.max(0,Number(it.minStock)||0);it.priority=['high','medium','low'].includes(it.priority)?it.priority:'medium';});});
+    });
+    return out;
+  }
+
+  function loadState(){
+    try{
+      let raw=storage.get(KEY);
+      if(!raw){
+        for(const legacy of LEGACY_KEYS){
+          const candidate=storage.get(legacy);
+          if(candidate){ raw=candidate; break; }
+        }
+      }
+      return raw?normalize(JSON.parse(raw)):clone(DEFAULT);
+    }catch(e){
+      return clone(DEFAULT);
+    }
+  }
+
+  function saveState(show=true){
+    const serialized=JSON.stringify(state);
+    const ok=storage.set(KEY,serialized);
+    let verified=ok;
+    if(ok){
+      try{ verified=storage.get(KEY)===serialized; }catch(e){ verified=false; }
+    }
+    if(els.saveStatus){
+      els.saveStatus.textContent=verified?'Guardado ✓':'Solo en memoria ⚠️';
+      els.saveStatus.style.color=verified?'var(--success)':'var(--warning)';
+    }
+    if(show){
+      toast(verified?'Cambios guardados correctamente ✅':'No se pudo guardar permanentemente. Exporta una copia. ⚠️');
+    }
+    return verified;
+  }
+
+  function allItems(){
+    const arr=[]; state.phases.forEach(p=>p.areas.forEach(a=>a.items.forEach(i=>arr.push({item:i,phase:p,area:a})))); return arr;
+  }
+  function itemStatus(i){ if(i.completed<=0)return 'pending'; if(i.completed>=i.quantity)return 'complete'; return 'progress'; }
+  function percent(i){return Math.round((Math.max(0,Math.min(i.quantity,i.completed))/Math.max(1,i.quantity))*100);}
+  function areaPercent(a){const items=a.items; if(!items.length)return 0; const total=items.reduce((s,i)=>s+i.quantity,0);const done=items.reduce((s,i)=>s+i.completed,0);return total?Math.round(done/total*100):0;}
+  function phasePercent(p){const areas=p.areas;if(!areas.length)return 0;const total=areas.reduce((s,a)=>s+a.items.reduce((ss,i)=>ss+i.quantity,0),0);const done=areas.reduce((s,a)=>s+a.items.reduce((ss,i)=>ss+i.completed,0),0);return total?Math.round(done/total*100):0;}
+  function projectPercent(){const items=allItems().map(x=>x.item);const total=items.reduce((s,i)=>s+i.quantity,0);const done=items.reduce((s,i)=>s+i.completed,0);return total?Math.round(done/total*100):0;}
+  function nextPhaseNumber(){return state.phases.length?Math.max(...state.phases.map(p=>Number(p.number)||0))+1:1;}
+  function findPhase(id){return state.phases.find(p=>p.id===id);}
+  function findArea(pid,aid){const p=findPhase(pid);return p?.areas.find(a=>a.id===aid);}
+  function findItem(pid,aid,iid){const a=findArea(pid,aid);return a?.items.find(i=>i.id===iid);}
+
+  function toast(message){
+    const n=document.createElement('div'); n.className='toast-item'; n.textContent=message; els.toast.appendChild(n); setTimeout(()=>n.remove(),2600);
+  }
+
+  function switchView(view){
+    currentView=view; document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $(view+'View').classList.add('active');
+    const info={dashboard:['Dashboard','Vista general del proyecto'],project:['Proyecto','Fases, áreas y elementos'],inventory:['Inventario','Consulta rápida de materiales y existencias'],reports:['Reportes','Resumen del estado del proyecto'],settings:['Configuración','Datos y respaldos']};
+    els.pageTitle.textContent=info[view][0]; els.pageSub.textContent=info[view][1]; renderAll(); els.sidebar.classList.remove('open');
+  }
+
+  function renderAll(){renderDashboard();renderProject();renderInventory();renderReports();renderSettings();}
+
+  function renderDashboard(){
+    const pp=projectPercent(); const items=allItems(); const missing=items.reduce((s,x)=>s+Math.max(0,x.item.quantity-x.item.completed),0); const required=items.reduce((s,x)=>s+x.item.quantity,0); const cost=items.reduce((s,x)=>s+x.item.quantity*x.item.price,0);
+    els.dashProjectName.textContent=state.project.name; els.dashProjectDesc.textContent=state.project.description; els.dashPercent.textContent=pp+'%'; els.dashFill.style.width=pp+'%';
+    els.sPhases.textContent=num(state.phases.length); els.sAreas.textContent=num(state.phases.reduce((s,p)=>s+p.areas.length,0)); els.sItems.textContent=num(items.length); els.sRequired.textContent=num(required); els.sMissing.textContent=num(missing); els.sCost.textContent=money(cost);
+    els.phaseSummary.innerHTML=state.phases.length?state.phases.slice().sort((a,b)=>a.number-b.number).map(p=>`<div class="dashboard-row"><div class="dashboard-row-top"><strong>Fase ${p.number} · ${esc(p.name)}</strong><strong>${phasePercent(p)}%</strong></div><div style="margin-top:7px" class="progress"><span style="width:${phasePercent(p)}%"></span></div><small>${p.areas.length} área(s)</small></div>`).join(''):'<div class="empty">No hay fases. Crea la primera con el botón de arriba.</div>';
+    const low=items.filter(x=>x.item.minStock>0 && (x.item.quantity-x.item.completed)<=x.item.minStock); const due=items.filter(x=>x.item.dueDate && x.item.dueDate<today() && itemStatus(x.item)!=='complete');
+    let html=''; if(low.length) html+=`<div class="alert">⚠️ <b>${low.length}</b> elemento(s) en nivel de stock bajo.</div>`; if(due.length) html+=`<div class="alert" style="margin-top:8px">📅 <b>${due.length}</b> elemento(s) con fecha vencida.</div>`; if(!html)html='<div class="notice">✅ No hay alertas importantes en este momento.</div>'; els.alerts.innerHTML=html;
+  }
+  function today(){return new Date().toISOString().slice(0,10)}
+
+  function renderProject(){
+    els.projectNameBig.textContent=state.project.name; els.projectDescBig.textContent=state.project.description;
+    const q=els.searchInput.value.trim().toLowerCase(), sf=els.statusFilter.value, pf=els.priorityFilter.value;
+    const phases=state.phases.slice().sort((a,b)=>a.number-b.number);
+    let html='';
+    phases.forEach(p=>{
+      const phaseMatch=!q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+      const areas=p.areas.map(a=>{
+        const areaMatch=!q || phaseMatch || a.name.toLowerCase().includes(q) || a.description.toLowerCase().includes(q);
+        const items=a.items.filter(i=>{const matchText=!q || phaseMatch || areaMatch || [i.name,i.supplier,i.location,i.sku,i.responsible,i.note].some(v=>String(v||'').toLowerCase().includes(q)); const st=sf==='all'||itemStatus(i)===sf; const pr=pf==='all'||i.priority===pf; return matchText&&st&&pr;});
+        if(q && !areaMatch && !items.length)return '';
+        const ap=areaPercent(a);
+        return `<div class="area"><div class="area-head"><div><span class="area-title">${esc(a.name)}</span><span class="area-count">${a.items.length} elemento(s) · ${ap}%</span></div><div class="area-actions"><button type="button" class="btn" data-action="newItem" data-pid="${p.id}" data-aid="${a.id}">＋ Elemento</button><button type="button" class="icon-btn" aria-label="Completar área" title="Completar área" data-action="completeArea" data-pid="${p.id}" data-aid="${a.id}">✅</button><button type="button" class="icon-btn" aria-label="Editar área" title="Editar área" data-action="editArea" data-pid="${p.id}" data-aid="${a.id}">✏️</button><button type="button" class="icon-btn" aria-label="Eliminar área" title="Eliminar área" data-action="deleteArea" data-pid="${p.id}" data-aid="${a.id}">🗑️</button></div></div><div class="progress" style="margin:0 12px 10px"><span style="width:${ap}%"></span></div><div class="area-body">${items.length?items.map(i=>renderItem(p,a,i)).join(''):'<div class="empty">No hay elementos que coincidan.</div>'}</div></div>`;
+      }).join('');
+      if(q && !phaseMatch && !htmlAreaHasContent(areas)) return;
+      html+=`<div class="phase"><div class="phase-head"><div class="phase-main"><div class="phase-num">${p.number}</div><div><div class="phase-name">${esc(p.name)}</div><div class="phase-meta">${p.areas.length} área(s) · ${phasePercent(p)}% · ${esc(p.description)}</div></div></div><div class="phase-progress"><div class="progress" style="flex:1"><span style="width:${phasePercent(p)}%"></span></div><div class="pct">${phasePercent(p)}%</div></div><div class="phase-actions"><button type="button" class="btn primary" data-action="newArea" data-pid="${p.id}">＋ Área</button><button type="button" class="icon-btn" aria-label="Completar fase" title="Completar fase" data-action="completePhase" data-pid="${p.id}">✅</button><button type="button" class="icon-btn" aria-label="Editar fase" title="Editar fase" data-action="editPhase" data-pid="${p.id}">✏️</button><button type="button" class="icon-btn" aria-label="Eliminar fase" title="Eliminar fase" data-action="deletePhase" data-pid="${p.id}">🗑️</button></div></div><div class="areas">${areas || '<div class="empty">Esta fase no tiene áreas. Pulsa ＋ para agregar una.</div>'}</div></div>`;
+    });
+    els.phaseList.innerHTML=html || '<div class="empty">No se encontraron resultados.</div>';
+  }
+  function htmlAreaHasContent(s){return /<div class="area">/.test(s)}
+
+  function renderItem(p,a,i){
+    const st=itemStatus(i), pct=percent(i), missing=Math.max(0,i.quantity-i.completed), priorityLabel={high:'Alta',medium:'Media',low:'Baja'}[i.priority];
+    return `<div class="item"><div class="item-top"><div><div class="item-name">${esc(i.name)}</div><div class="tags"><span class="tag ${i.priority}">${priorityLabel}</span><span class="tag ${st==='complete'?'done':st==='pending'?'pending':''}">${st==='complete'?'Completado':st==='progress'?'En progreso':'Pendiente'}</span>${missing?`<span class="tag">Faltan ${num(missing)} ${esc(i.unit)}</span>`:''}</div></div><div class="item-actions"><button type="button" class="icon-btn" aria-label="Editar elemento" title="Editar" data-action="editItem" data-pid="${p.id}" data-aid="${a.id}" data-iid="${i.id}">✏️</button><button type="button" class="icon-btn" aria-label="Duplicar elemento" title="Duplicar" data-action="duplicateItem" data-pid="${p.id}" data-aid="${a.id}" data-iid="${i.id}">📄</button><button type="button" class="icon-btn" aria-label="Eliminar elemento" title="Eliminar" data-action="deleteItem" data-pid="${p.id}" data-aid="${a.id}" data-iid="${i.id}">🗑️</button></div></div><div class="qty-row"><div><span class="qty-number">${num(i.completed)} / ${num(i.quantity)} ${esc(i.unit)}</span> <span style="color:var(--muted);font-size:11px">· ${pct}%</span></div><div class="qty-controls"><button type="button" data-action="qty" data-d="-1" data-pid="${p.id}" data-aid="${a.id}" data-iid="${i.id}">−</button><input class="qty-input" value="${i.completed}" type="number" min="0" max="${i.quantity}" data-action="setQty" data-pid="${p.id}" data-aid="${a.id}" data-iid="${i.id}"><button type="button" data-action="qty" data-d="1" data-pid="${p.id}" data-aid="${a.id}" data-iid="${i.id}">＋</button></div></div><div class="progress"><span style="width:${pct}%"></span></div><div class="item-info"><div class="info-box">Faltante<b>${num(missing)} ${esc(i.unit)}</b></div><div class="info-box">Stock mín.<b>${num(i.minStock)}</b></div><div class="info-box">Ubicación<b>${esc(i.location||'—')}</b></div><div class="info-box">Costo<b>${money(i.quantity*i.price)}</b></div></div>${i.sku||i.supplier||i.responsible||i.dueDate||i.note?`<div style="font-size:11px;color:var(--muted)">${i.sku?`🏷️ ${esc(i.sku)} · `:''}${i.supplier?`🏪 ${esc(i.supplier)} · `:''}${i.responsible?`👤 ${esc(i.responsible)} · `:''}${i.dueDate?`📅 ${esc(i.dueDate)} · `:''}${i.note?`📝 ${esc(i.note)}`:''}</div>`:''}</div>`;
+  }
+
+  function renderInventory(){
+    const q=els.invSearch.value.trim().toLowerCase(), f=els.invFilter.value; const rows=[];
+    allItems().forEach(x=>{const i=x.item,missing=Math.max(0,i.quantity-i.completed);const text=[i.name,i.supplier,i.location,i.sku,i.responsible,x.phase.name,x.area.name].join(' ').toLowerCase();const low=i.minStock>0&&missing<=i.minStock;const ok=!q||text.includes(q);const okF=f==='all'||(f==='missing'&&missing>0)||(f==='complete'&&itemStatus(i)==='complete')||(f==='lowstock'&&low);if(ok&&okF)rows.push(x);});
+    els.inventoryTable.innerHTML=rows.length?rows.map(x=>{const i=x.item,missing=i.quantity-i.completed,pct=percent(i);return `<tr><td><b>${esc(i.name)}</b><br><small>${esc(i.sku||'Sin SKU')}</small></td><td>${esc(x.phase.name)}<br><small>${esc(x.area.name)}</small></td><td>${num(i.completed)}/${num(i.quantity)} ${esc(i.unit)}<br><small>${pct}%</small></td><td>${num(Math.max(0,missing))}</td><td>${num(i.minStock)}</td><td>${esc(i.location||'—')}</td><td><button type="button" class="icon-btn" data-action="gotoItem" data-pid="${x.phase.id}" data-aid="${x.area.id}" data-iid="${i.id}">↗</button></td></tr>`}).join(''):`<tr><td colspan="7"><div class="empty">No hay elementos.</div></td></tr>`;
+  }
+
+  function renderReports(){
+    const items=allItems(), counts={pending:0,progress:0,complete:0};items.forEach(x=>counts[itemStatus(x.item)]++);const missing=items.reduce((s,x)=>s+Math.max(0,x.item.quantity-x.item.completed),0);const high=items.filter(x=>x.item.priority==='high').length;const cost=items.reduce((s,x)=>s+x.item.quantity*x.item.price,0);
+    els.rPending.textContent=counts.pending;els.rProgress.textContent=counts.progress;els.rComplete.textContent=counts.complete;els.rMissing.textContent=num(missing);els.rHigh.textContent=high;els.rCost.textContent=money(cost);
+    els.reportPhases.innerHTML=state.phases.slice().sort((a,b)=>a.number-b.number).map(p=>`<div class="dashboard-row"><div class="dashboard-row-top"><b>Fase ${p.number} · ${esc(p.name)}</b><b>${phasePercent(p)}%</b></div><div style="margin-top:6px" class="progress"><span style="width:${phasePercent(p)}%"></span></div></div>`).join('') || '<div class="empty">Sin fases.</div>';
+    const missingItems=items.filter(x=>x.item.quantity>x.item.completed).sort((a,b)=>(b.item.quantity-b.item.completed)-(a.item.quantity-a.item.completed));els.reportMissing.innerHTML=missingItems.slice(0,15).map(x=>`<div class="dashboard-row"><div class="dashboard-row-top"><b>${esc(x.item.name)}</b><span>${num(x.item.quantity-x.item.completed)} faltan</span></div><small>${esc(x.phase.name)} · ${esc(x.area.name)}</small></div>`).join('') || '<div class="notice">✅ Todo está completado.</div>';
+  }
+
+  function renderSettings(){els.setName.value=state.project.name;els.setDesc.value=state.project.description;els.themeBtn.textContent=els.body.classList.contains('dark')?'☀️ Tema claro':'🌙 Tema oscuro';}
+
+  function openModal(title,body,onSubmit){modalAction=onSubmit;els.modalTitle.textContent=title;els.modalBody.innerHTML=body;els.modalBg.classList.add('open');setTimeout(()=>els.modalBody.querySelector('input,select,textarea')?.focus(),50);}
+  function closeModal(){els.modalBg.classList.remove('open');els.modalBody.innerHTML='';modalAction=null;}
+  function field(label,html,full=false){return `<div class="field${full?' full':''}"><label>${esc(label)}</label>${html}</div>`;}
+  function input(id,label,value='',type='text',extra='',full=false){return field(label,`<input class="input" id="${id}" type="${type}" value="${esc(value)}" ${extra}>`,full)}
+  function select(id,label,value,options){return field(label,`<select class="select" id="${id}">${options.map(([v,t])=>`<option value="${esc(v)}" ${String(v)===String(value)?'selected':''}>${esc(t)}</option>`).join('')}</select>`)}
+
+  function newPhase(){
+    openModal('Nueva fase', `<div class="form-grid">${input('fNumber','Número de fase',nextPhaseNumber(),'number','min="1"')}${input('fName','Nombre de la fase','','text','required')}${input('fDesc','Descripción','','text','',true)}</div>`, () => {
+      const name=$('fName').value.trim(); const n=Math.max(1,Number($('fNumber').value)||nextPhaseNumber()); if(!name){toast('Escribe un nombre para la fase');$('fName').focus();return false;} if(state.phases.some(p=>p.number===n)){toast('Ese número de fase ya existe');return false;}
+      state.phases.push({id:uid(),number:n,name,description:$('fDesc').value.trim(),areas:[]}); normalize(state); saveState(false); renderAll(); closeModal(); toast('Nueva fase guardada ✅'); switchView('project'); return true;
+    });
+  }
+
+  function editPhase(pid){const p=findPhase(pid);if(!p)return;openModal('Editar fase',`<div class="form-grid">${input('fNumber','Número de fase',p.number,'number','min="1"')}${input('fName','Nombre',p.name,'text','required')}${input('fDesc','Descripción',p.description,'text','',true)}</div>`,()=>{const name=$('fName').value.trim();const n=Math.max(1,Number($('fNumber').value)||p.number);if(!name){toast('Escribe un nombre');return false;}const other=state.phases.find(x=>x.id!==pid&&x.number===n);if(other){toast('Ya existe otra fase con ese número');return false;}p.number=n;p.name=name;p.description=$('fDesc').value.trim();saveState(false);renderAll();toast('Fase actualizada ✅');return true;});}
+  function deletePhase(pid){const p=findPhase(pid);if(!p)return;if(!confirm(`¿Eliminar la fase "${p.name}" y todo su contenido?`))return;state.phases=state.phases.filter(x=>x.id!==pid);saveState(false);renderAll();toast('Fase eliminada');}
+  function newArea(pid){const p=findPhase(pid);if(!p)return;openModal('Nueva área',`<div class="form-grid">${input('aName','Nombre del área','','text','required')}${input('aDesc','Descripción','','text','',true)}</div>`,()=>{const name=$('aName').value.trim();if(!name){toast('Escribe un nombre para el área');return false;}p.areas.push({id:uid(),name,description:$('aDesc').value.trim(),items:[]});saveState(false);renderAll();toast('Área guardada ✅');return true;});}
+  function editArea(pid,aid){const a=findArea(pid,aid);if(!a)return;openModal('Editar área',`<div class="form-grid">${input('aName','Nombre',a.name,'text','required')}${input('aDesc','Descripción',a.description,'text','',true)}</div>`,()=>{const name=$('aName').value.trim();if(!name){toast('Escribe un nombre');return false;}a.name=name;a.description=$('aDesc').value.trim();saveState(false);renderAll();toast('Área actualizada ✅');return true;});}
+  function deleteArea(pid,aid){const a=findArea(pid,aid);if(!a)return;if(!confirm(`¿Eliminar el área "${a.name}" y sus elementos?`))return;const p=findPhase(pid);p.areas=p.areas.filter(x=>x.id!==aid);saveState(false);renderAll();toast('Área eliminada');}
+
+  function newItem(pid,aid,copy){const a=findArea(pid,aid);if(!a)return;const base=copy||makeItem();openModal(copy?'Duplicar elemento':'Nuevo elemento',`<div class="form-grid">
+    ${input('iName','Nombre',copy?copy.name:'','text','required')}
+    ${input('iQty','Cantidad requerida',copy?copy.quantity:1,'number','min="1"')}
+    ${select('iUnit','Unidad',copy?copy.unit:'piezas',[['piezas','Piezas'],['pares','Pares'],['litros','Litros'],['kg','Kilogramos'],['g','Gramos'],['metros','Metros'],['rollos','Rollos'],['cajas','Cajas'],['costales','Costales'],['sacos','Sacos'],['actividades','Actividades'],['unidades','Unidades']])}
+    ${input('iDone','Cantidad completada',copy?copy.completed:0,'number','min="0"')}
+    ${input('iPrice','Precio unitario',copy?copy.price:0,'number','min="0" step="0.01"')}
+    ${select('iPriority','Prioridad',copy?copy.priority:'medium',[['high','Alta'],['medium','Media'],['low','Baja']])}
+    ${input('iMin','Stock mínimo',copy?copy.minStock:0,'number','min="0"')}
+    ${input('iDate','Fecha límite',copy?copy.dueDate:'','date')}
+    ${input('iResp','Responsable',copy?copy.responsible:'')}
+    ${input('iSupplier','Proveedor',copy?copy.supplier:'')}
+    ${input('iLocation','Ubicación',copy?copy.location:'')}
+    ${input('iSku','Código / SKU',copy?copy.sku:'')}
+    ${input('iNote','Nota',copy?copy.note:'','text','',true)}
+  </div>`,()=>{
+      const name=$('iName').value.trim();const qty=Math.max(1,Number($('iQty').value)||1);const done=Math.max(0,Math.min(qty,Number($('iDone').value)||0));if(!name){toast('Escribe un nombre para el elemento');return false;}
+      const data={...makeItem(name,qty,$('iUnit').value),completed:done,price:Math.max(0,Number($('iPrice').value)||0),priority:$('iPriority').value,minStock:Math.max(0,Number($('iMin').value)||0),dueDate:$('iDate').value,responsible:$('iResp').value.trim(),supplier:$('iSupplier').value.trim(),location:$('iLocation').value.trim(),sku:$('iSku').value.trim(),note:$('iNote').value.trim()};
+      if(copy){data.id=uid();a.items.push(data);}else a.items.push(data);saveState(false);renderAll();toast(copy?'Elemento duplicado ✅':'Elemento guardado ✅');return true;
+    });
+  }
+
+  function editItem(pid,aid,iid){const i=findItem(pid,aid,iid);if(!i)return;openModal('Editar elemento',`<div class="form-grid">
+    ${input('iName','Nombre',i.name,'text','required')}${input('iQty','Cantidad requerida',i.quantity,'number','min="1"')}${select('iUnit','Unidad',i.unit,[['piezas','Piezas'],['pares','Pares'],['litros','Litros'],['kg','Kilogramos'],['g','Gramos'],['metros','Metros'],['rollos','Rollos'],['cajas','Cajas'],['costales','Costales'],['sacos','Sacos'],['actividades','Actividades'],['unidades','Unidades']])}${input('iDone','Cantidad completada',i.completed,'number','min="0"')}${input('iPrice','Precio unitario',i.price,'number','min="0" step="0.01"')}${select('iPriority','Prioridad',i.priority,[['high','Alta'],['medium','Media'],['low','Baja']])}${input('iMin','Stock mínimo',i.minStock,'number','min="0"')}${input('iDate','Fecha límite',i.dueDate,'date')}${input('iResp','Responsable',i.responsible)}${input('iSupplier','Proveedor',i.supplier)}${input('iLocation','Ubicación',i.location)}${input('iSku','Código / SKU',i.sku)}${input('iNote','Nota',i.note,'text','',true)}
+  </div>`,()=>{const name=$('iName').value.trim();const qty=Math.max(1,Number($('iQty').value)||1);if(!name){toast('Escribe un nombre');return false;}Object.assign(i,{name,quantity:qty,unit:$('iUnit').value,completed:Math.max(0,Math.min(qty,Number($('iDone').value)||0)),price:Math.max(0,Number($('iPrice').value)||0),priority:$('iPriority').value,minStock:Math.max(0,Number($('iMin').value)||0),dueDate:$('iDate').value,responsible:$('iResp').value.trim(),supplier:$('iSupplier').value.trim(),location:$('iLocation').value.trim(),sku:$('iSku').value.trim(),note:$('iNote').value.trim()});saveState(false);renderAll();toast('Elemento actualizado ✅');return true;});}
+  function deleteItem(pid,aid,iid){const i=findItem(pid,aid,iid);if(!i)return;if(!confirm(`¿Eliminar "${i.name}"?`))return;const a=findArea(pid,aid);a.items=a.items.filter(x=>x.id!==iid);saveState(false);renderAll();toast('Elemento eliminado');}
+  function duplicateItem(pid,aid,iid){const i=findItem(pid,aid,iid);if(i)newItem(pid,aid,i);}
+  function changeQty(pid,aid,iid,d){const i=findItem(pid,aid,iid);if(!i)return;i.completed=Math.max(0,Math.min(i.quantity,i.completed+d));saveState(false);renderAll();}
+  function setQty(pid,aid,iid,v){const i=findItem(pid,aid,iid);if(!i)return;i.completed=Math.max(0,Math.min(i.quantity,Number(v)||0));saveState(false);renderAll();}
+  function completeArea(pid,aid){const a=findArea(pid,aid);if(!a)return;a.items.forEach(i=>i.completed=i.quantity);saveState(false);renderAll();toast('Área completada ✅');}
+  function completePhase(pid){const p=findPhase(pid);if(!p)return;p.areas.forEach(a=>a.items.forEach(i=>i.completed=i.quantity));saveState(false);renderAll();toast('Fase completada ✅');}
+
+  function editProject(){openModal('Editar proyecto',`<div class="form-grid">${input('pName','Nombre',state.project.name,'text','required')}${input('pDesc','Descripción',state.project.description,'text','',true)}</div>`,()=>{const name=$('pName').value.trim();if(!name){toast('Escribe un nombre');return false;}state.project.name=name;state.project.description=$('pDesc').value.trim();saveState(false);renderAll();toast('Proyecto actualizado ✅');return true;});}
+
+  function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});downloadBlob(blob,'almacen-pro-backup.json');toast('Respaldo exportado ✅');}
+  function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+  function exportCSV(){const head=['Fase','Área','Elemento','Requerido','Completado','Faltante','Unidad','Prioridad','Precio unitario','Costo total','Responsable','Proveedor','Ubicación','SKU','Fecha límite','Nota'];const rows=allItems().map(x=>{const i=x.item;return [x.phase.number,x.area.name,i.name,i.quantity,i.completed,Math.max(0,i.quantity-i.completed),i.unit,i.priority,i.price,i.quantity*i.price,i.responsible,i.supplier,i.location,i.sku,i.dueDate,i.note]});const csv=[head,...rows].map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'almacen-pro.csv');toast('CSV exportado ✅');}
+  function printReport(){const w=window.open('','_blank');if(!w){toast('El navegador bloqueó la ventana de impresión');return;}w.document.write(`<html><head><title>Reporte — ${esc(state.project.name)}</title><style>body{font-family:Arial;padding:30px;color:#222}h1{margin-bottom:4px}.phase{border:1px solid #ddd;padding:15px;margin:12px 0}.item{padding:7px 0;border-bottom:1px solid #eee;font-size:13px}.muted{color:#666;font-size:12px}</style></head><body><h1>${esc(state.project.name)}</h1><div class="muted">${esc(state.project.description)} · Progreso ${projectPercent()}%</div>${state.phases.slice().sort((a,b)=>a.number-b.number).map(p=>`<div class="phase"><h2>Fase ${p.number} · ${esc(p.name)} — ${phasePercent(p)}%</h2>${p.areas.map(a=>`<h3>${esc(a.name)} — ${areaPercent(a)}%</h3>${a.items.map(i=>`<div class="item"><b>${esc(i.name)}</b> — ${i.completed}/${i.quantity} ${esc(i.unit)} · faltan ${Math.max(0,i.quantity-i.completed)}</div>`).join('')}`).join('')}</div>`).join('')}</body></html>`);w.document.close();w.focus();w.print();}
+
+  function importJSON(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);state=normalize(data);saveState(false);renderAll();toast('Proyecto importado ✅');switchView('dashboard');}catch(e){toast('El archivo no es un respaldo válido ❌');}};reader.readAsText(file);}
+
+  function resetProject(){if(!confirm('¿Crear un proyecto nuevo? Se borrarán los datos actuales de este navegador.'))return;state=clone(DEFAULT);state.phases[0].id=uid();state.phases.forEach(p=>{p.areas.forEach(a=>{a.id=uid();a.items.forEach(i=>i.id=uid())})});saveState(false);renderAll();toast('Proyecto nuevo creado ✅');switchView('dashboard');}
+
+  // Navegación
+  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
+  els.menuBtn.addEventListener('click',()=>els.sidebar.classList.toggle('open'));
+  els.goProjectBtn.addEventListener('click',()=>switchView('project'));
+  els.newPhaseBtn.addEventListener('click',newPhase);
+  els.editProjectBtn.addEventListener('click',editProject);
+  els.clearFiltersBtn.addEventListener('click',()=>{els.searchInput.value='';els.statusFilter.value='all';els.priorityFilter.value='all';renderProject();});
+  els.searchInput.addEventListener('input',renderProject);els.statusFilter.addEventListener('change',renderProject);els.priorityFilter.addEventListener('change',renderProject);els.invSearch.addEventListener('input',renderInventory);els.invFilter.addEventListener('change',renderInventory);
+  els.themeBtn.addEventListener('click',()=>{els.body.classList.toggle('dark');storage.set(KEY+'_theme',els.body.classList.contains('dark')?'dark':'light');renderSettings();});
+  els.saveBtn.addEventListener('click',()=>saveState(true));
+  els.exportBtn.addEventListener('click',exportJSON);
+  els.importBtn.addEventListener('click',()=>els.fileInput.click());
+  els.fileInput.addEventListener('change',e=>{const file=e.target.files[0];if(file)importJSON(file);e.target.value='';});
+  els.resetBtn.addEventListener('click',resetProject);
+  els.saveSettingsBtn.addEventListener('click',()=>{const n=els.setName.value.trim();if(!n){toast('Escribe un nombre de proyecto');return;}state.project.name=n;state.project.description=els.setDesc.value.trim();saveState(false);renderAll();toast('Configuración guardada ✅');});
+  els.printBtn.addEventListener('click',printReport);
+  els.modalClose.addEventListener('click',closeModal);els.modalCancel.addEventListener('click',closeModal);els.modalBg.addEventListener('click',e=>{if(e.target===els.modalBg)closeModal();});
+  els.modalForm.addEventListener('submit',e=>{e.preventDefault();if(typeof modalAction==='function'){const ok=modalAction();if(ok!==false && els.modalBg.classList.contains('open'))closeModal();}});
+
+  // Acciones de fases, áreas y elementos con delegación: esto evita botones rotos al volver a renderizar.
+  els.phaseList.addEventListener('click',e=>{
+    const b=e.target.closest('[data-action]');if(!b)return;const a=b.dataset.action,pid=b.dataset.pid,aid=b.dataset.aid,iid=b.dataset.iid;
+    if(a==='newArea')newArea(pid); else if(a==='completeArea')completeArea(pid,aid); else if(a==='editArea')editArea(pid,aid); else if(a==='deleteArea')deleteArea(pid,aid); else if(a==='newItem')newItem(pid,aid); else if(a==='editItem')editItem(pid,aid,iid); else if(a==='duplicateItem')duplicateItem(pid,aid,iid); else if(a==='deleteItem')deleteItem(pid,aid,iid); else if(a==='qty')changeQty(pid,aid,iid,Number(b.dataset.d)||0); else if(a==='completePhase')completePhase(pid); else if(a==='editPhase')editPhase(pid); else if(a==='deletePhase')deletePhase(pid);
+  });
+  els.phaseList.addEventListener('change',e=>{const el=e.target.closest('[data-action="setQty"]');if(!el)return;setQty(el.dataset.pid,el.dataset.aid,el.dataset.iid,el.value);});
+  els.inventoryTable.addEventListener('click',e=>{const b=e.target.closest('[data-action="gotoItem"]');if(!b)return;switchView('project');setTimeout(()=>{const target=document.querySelector(`[data-action="editItem"][data-iid="${CSS.escape(b.dataset.iid)}"]`);target?.scrollIntoView({behavior:'smooth',block:'center'});},100);});
+
+  // Atajos básicos
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&els.modalBg.classList.contains('open'))closeModal();});
+  window.addEventListener('beforeunload',()=>{saveState(false)});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveState(false);});
+  setInterval(()=>saveState(false),5000);
+
+  // Tema guardado
+  if(storage.get(KEY+'_theme')==='dark')els.body.classList.add('dark');
+  renderAll();
+  saveState(false);
+})();
+</script>
+</body>
+</html>
